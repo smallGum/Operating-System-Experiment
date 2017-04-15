@@ -1,0 +1,2 @@
+This repository completes 5 experiments of operating system, including using fork() to create child processes in different situations, building shared memory between parent and child process, using signal to build the communication between parent and child process, implementing a simple shell and completing a program to copy a file.
+From these experiments we could know several kinds of the linux system calls and distinguish the relationship between parent and child processes. 
