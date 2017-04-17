@@ -8,7 +8,7 @@ int main() {
 
 	for (i = 0; i < 2; ++i) { 
 		if ((pid[i] = fork())) { a = 1; }
-		printf("X\n"); 
+		printf("X"); 
 	}
 	if (pid[0] == 0) { printf("%d\n", a); }
 	if (pid[1] == 0) { printf("%d\n", a); }

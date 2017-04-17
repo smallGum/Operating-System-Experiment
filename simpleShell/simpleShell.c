@@ -117,7 +117,7 @@ void setup(char inputBuffer[], char *args[], int *background) {
 
 			// if a new line is read, the command is ended
 			case '\n':
-				if (start == -1) {
+				if (start != -1) {
 					args[ct] = &inputBuffer[start];
 					ct++;
 				}
@@ -158,7 +158,7 @@ int main() {
     // if background == 0
     if ((pid = fork()) == -1) { printf("Fork Error.\n"); }
     if (pid == 0) { execvp(args[0], args); exit(0); }
-    if (background == 0) { wait(NULL); wait(NULL); }
+    if (background == 0) { waitpid(pid); }
   }
 
   return 0;

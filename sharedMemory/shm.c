@@ -63,6 +63,14 @@ int main() {
 			printf("%ld ", p_addr -> fib_sequence[i]);
 		}
 		printf("\n");
+		
+		// detach the shared memory form the parent process
+		if (shmdt(p_addr) == -1) { fprintf(stderr, "Unable to detach\n"); }
+		// release the shared memory
+		if (shmctl(shmid, IPC_RMID, 0) < 0) {
+			printf("shmctl error:%d\n", strerror(errno));
+			return -1;
+		}
 	}
 	else if (pid == 0) {
 		c_addr = (shared_data*)shmat(shmid, 0, 0);
@@ -73,11 +81,8 @@ int main() {
 		for (i = 0; i < c_addr -> sequence_size; ++i) {
 			c_addr -> fib_sequence[i] = fib(i);
 		}
-	}
-
-	if (shmctl(shmid, IPC_RMID, 0) < 0) {
-		printf("shmctl error:%d\n", strerror(errno));
-		return -1;
+		// detach the shared memory form the child process
+		if (shmdt(c_addr) == -1) { fprintf(stderr, "Unable to detach\n"); }
 	}
 
 	return 0;

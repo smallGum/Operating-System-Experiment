@@ -7,7 +7,7 @@ int main() {
 	pid_t pid;
 
 	if ((pid = fork())) { a = 1; }
-	for (i = 0; i < 2; ++i) { printf("X\n"); }
+	for (i = 0; i < 2; ++i) { printf("X"); }
 	if (pid == 0) { printf("%d\n", a); }
 
 	return 0;
