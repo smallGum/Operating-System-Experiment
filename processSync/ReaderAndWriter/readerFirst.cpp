@@ -11,7 +11,7 @@ using namespace std;
 
 // parameters for each thread 
 struct parameters {
-  int start_time, end_time;
+  int start_time, end_time, tid;
 };
 
 int read_count = 0;  // record the number of readers that are reading the file
@@ -42,6 +42,7 @@ int main()
     char role;
     struct parameters *paras = new struct parameters[1];
     fin >> tids[i] >> role >> paras -> start_time >> paras -> end_time;
+    paras -> tid = tids[i];
 
     if (role == 'R') {
       pthread_create(&tids[i], NULL, reader, (void *)paras);
@@ -67,23 +68,23 @@ int main()
 }
 
 void *reader(void *paras) {
-  cout << "new reader thread created." << endl;
   struct parameters *tparas = (struct parameters *)paras;
+  cout << "No. " << tparas -> tid << " reader thread created." << endl;
 
   sleep (tparas -> start_time);
-  cout << "new reader apply for reading..." << endl;
+  cout << "No. " << tparas -> tid << " reader apply for reading..." << endl;
 
   sem_wait(&mutex);
   read_count++;
   if (read_count == 1) { sem_wait(&write_file); }
   sem_post(&mutex);
 
-  cout << "reader start reading..." << endl;
+  cout << "No. " << tparas -> tid << " reader start reading..." << endl;
+  sleep(tparas -> end_time);
+  cout << "No. " << tparas -> tid << " reader end up reading." << endl;
 
   sem_wait(&mutex);
   read_count--;
-  sleep(tparas -> end_time);
-  cout << "reader end up reading." << endl;
   if (read_count == 0) { sem_post(&write_file); }
   sem_post(&mutex);
 
@@ -91,16 +92,16 @@ void *reader(void *paras) {
 }
 
 void *writer(void *paras) {
-  cout << "new writer thread created." << endl;
   struct parameters *tparas = (struct parameters *)paras;
+  cout << "No. " << tparas -> tid << " writer thread created." << endl;
 
   sleep(tparas -> start_time);
-  cout << "new writer apply for writing..." << endl;
+  cout << "No. " << tparas -> tid << " writer apply for writing..." << endl;
 
   sem_wait(&write_file);
-  cout << "writer start writing..." << endl;
+  cout << "No. " << tparas -> tid << " writer start writing..." << endl;
   sleep(tparas -> end_time);
-  cout << "writer end up writing." << endl;
+  cout << "No. " << tparas -> tid << " writer end up writing." << endl;
   sem_post(&write_file);
 
   free(tparas);

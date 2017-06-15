@@ -14,7 +14,7 @@ typedef int buffer_item;
 
 // thread parameter structure
 struct parameters {
-  int start_time, end_time;
+  int start_time, end_time, tid;
   buffer_item item;
 };
 
@@ -53,6 +53,7 @@ int main(int argc, char **argv)
     char role;
     struct parameters* paras = new struct parameters[1];
     fin >> tids[i] >> role >> paras -> start_time >> paras -> end_time;
+    paras -> tid = tids[i];
 
     if (role == 'P') {
       fin >> paras -> item;
@@ -83,20 +84,20 @@ int main(int argc, char **argv)
 void *produce(void *paras)
 {
   struct parameters* tparas = (struct parameters*) paras;
-  cout << "new producer thread created. start time: " << tparas -> start_time << ' ' << "end time: " << tparas -> end_time << endl;
+  cout <<  "No. " << tparas -> tid << " producer thread created." << endl;
 
   // wait to start
   sleep(tparas -> start_time);
-  cout << "new producer apply for producing..." << endl;
+  cout <<  "No. " << tparas -> tid << " producer apply for producing..." << endl;
 
   sem_wait(&shared.empty);
   sem_wait(&shared.mutex);
   // add the item to the buffer
   shared.buffer[current_pro] = tparas -> item;
-  cout << "Producing " << shared.buffer[current_pro]  << "..." << endl;
+  cout <<  "No. " << tparas -> tid << "producer is producing " << shared.buffer[current_pro]  << "..." << endl;
   // wait to finish
   sleep(tparas -> end_time);
-  cout << "Produced" << shared.buffer[current_pro] << endl;
+  cout <<  "No. " << tparas -> tid << "producer has produced" << shared.buffer[current_pro] << endl;
   current_pro = (current_pro + 1) % BUFFER_SIZE;
   sem_post(&shared.mutex);
   sem_post(&shared.full);
@@ -108,20 +109,20 @@ void *consume(void *paras)
 {
   //cout << "new consumer thread created." << endl;
   struct parameters* tparas = (struct parameters*) paras;
-  cout << "new consumer thread created. start time: " << tparas -> start_time << ' ' << "end time: " << tparas -> end_time << endl;
+  cout <<  "No. " << tparas -> tid << " consumer thread created." << endl;
 
   // wait to start
   sleep(tparas -> start_time);
-  cout << "new consumer apply for comsuming..." << endl;
+  cout <<  "No. " << tparas -> tid << " consumer apply for consuming..." << endl;
 
   sem_wait(&shared.full);
   sem_wait(&shared.mutex);
   // remove the item of the buffer
   current_pro = (current_pro + 4) % BUFFER_SIZE;
-  cout << "Consuming " << shared.buffer[current_pro] << "..." << endl;
+  cout <<  "No. " << tparas -> tid << " consumer is consuming " << shared.buffer[current_pro] << "..." << endl;
   // wait to finish
   sleep(tparas -> end_time);
-  cout << "Consumed " << shared.buffer[current_pro] << endl;
+  cout <<  "No. " << tparas -> tid << " consumer has consumed " << shared.buffer[current_pro] << endl;
   sem_post(&shared.mutex);
   sem_post(&shared.empty);
 
